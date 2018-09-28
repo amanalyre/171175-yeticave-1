@@ -30,32 +30,6 @@
 
 /* Общее */
 
-html,
-body {
-  height: 100%;
-}
-
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  margin-bottom: -202px;
-}
-
-.page-wrapper::after {
-  content: "";
-
-  display: block;
-}
-
-.page-wrapper::after {
-  height: 85px;
-}
-
-main {
-  margin-bottom: 202px;
-}
-
 body {
   min-width: 1140px;
   background-color: #dbe6e9;
@@ -91,31 +65,23 @@ h2 {
   color: #2590c6;
 }
 
-.visually-hidden:not(:focus):not(:active),
-input.visually-hidden {
+.visually-hidden {
   position: absolute;
-
   width: 1px;
   height: 1px;
   margin: -1px;
-  border: 0;
   padding: 0;
-
-  white-space: nowrap;
-
-  clip-path: inset(100%);
-  clip: rect(0 0 0 0);
   overflow: hidden;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  -webkit-clip-path: inset(100%);
+  clip-path: inset(100%);
 }
 
 .container {
   width: 1110px;
   margin: 0 auto;
   padding: 0 15px;
-}
-
-main.container {
-  margin-bottom: 202px;
 }
 
 .button {
@@ -295,6 +261,7 @@ main.container {
 /* Футер */
 
 .main-footer {
+  margin-top: 120px;
   background-color: #ffffff;
   box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.1);
 }
@@ -342,6 +309,7 @@ main.container {
 .social__link {
   width: 27px;
   height: 27px;
+  font-size: 0;
 }
 
 .social__link:hover path {
@@ -364,6 +332,7 @@ main.container {
   display: block;
   width: 118px;
   height: 40px;
+  font-size: 0;
 }
 
 .logo-academy:hover path {
@@ -706,6 +675,7 @@ main.container {
   display: -ms-flexbox;
   display: flex;
   margin: 0;
+  margin-bottom: 120px;
   padding: 22px 20px;
   list-style: none;
   text-align: center;
@@ -891,14 +861,10 @@ input:invalid .form__error{
   background: #ffffff url("../img/error.svg") 702px 11px no-repeat;
 }
 
-.form__input-file {
-  position: relative;
-  width: 115px;
-  height: 110px;
-}
-
 .form__item--file label span {
   display: block;
+  width: 115px;
+  height: 110px;
   background-color: #cad5d8;
   color: #ffffff;
   font-size: 16px;
@@ -1123,8 +1089,6 @@ input:invalid .form__error{
 .history__item td {
   display: block;
   width: 33%;
-  max-width: 110px;
-  word-wrap: break-word;
 }
 
 .history__item:last-child {
