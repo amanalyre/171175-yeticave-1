@@ -138,9 +138,12 @@ function getLotsList(int $limit = null, $db = null)
  */
 function getLot(int $lot_id, $db = null)
 {
-    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description
-              FROM lots l, categories c
-              WHERE l.category_id=c.id AND l.id = ?';
+    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description, MAX(b.bid_price) AS cur_price, l.bid_step
+              FROM lots l
+                LEFT JOIN bids b ON b.lot_id = l.id
+                LEFT JOIN categories c ON c.id=l.category_id
+              WHERE l.category_id=c.id AND l.id = ?
+              GROUP BY l.id';
 
     $parametersList = [
         'sql' => $sql,
@@ -148,6 +151,18 @@ function getLot(int $lot_id, $db = null)
         'limit' => 1
     ];
     return processingSqlQuery($parametersList, $db);
+}
+
+function lotPrice($lot_info)
+{
+    if (is_null($lot_info['cur_price'])) {
+        $lot_info['cur_price'] = price_round($lot_info['start_price']);
+
+    } else {
+        $lot_info['cur_price'];
+    }
+
+    return $lot_info;
 }
 
 /**
@@ -338,7 +353,6 @@ function getSession()
  */
 function getUserSessionData()
 {
-
     return getSession()['user'] ?? false;
 }
 
@@ -522,6 +536,33 @@ function saveImage(array $image, string $dir)
     } else {
         return false;
     }
+}
+
+/**
+ * Проверка новой ставки при добавлении
+ * @param $newBet
+ * @param $minBet
+ * @return array
+ */
+function checkNewBet($newBet, $minBet)
+{
+    $errors = formRequiredFields($newBet, ['bet']);
+        if (empty($errors)) {
+        if (filter_var($newBet, FILTER_VALIDATE_INT)) {
+            if ($newBet < $minBet) {
+                $errors['bet'] = 'Ставка не может быть ниже минимальной';
+            }
+        } else {
+            $errors['bet'] = 'Неверно указана цена';
+        }
+    }
+
+    return $errors;
+}
+
+function betAdd()
+{
+    // #TODO Дописать сюда.
 }
 
 /**

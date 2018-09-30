@@ -23,6 +23,19 @@ if ($lot_id == false || $lot_info == false) {
 }
 
 $lot_info =  getLot($lot_id);
+$lot_info = lotPrice($lot_info);
+
+if (isAuthorized() && $_POST) {
+    $resultAddBet = addBet($lot['id'], postQuery()['bet'], $minPrice);
+
+    if ($resultAddBet === true) {
+        header('Location: lot.php?id=' . $lot['id']);
+        exit;
+    } else {
+        $errors = $resultAddBet;
+    }
+}
+
 
 $templContent = renderTemplate('lot', [
     'lot_info' => $lot_info]);
