@@ -31,15 +31,20 @@ function getConfig()
     return ($config);
 }
 
-// Здесь подготавливаются выражения
+/**
+ * Подготовка выражения
+ * @param array $parameterList
+ * @param null $db
+ * @return array|bool|null
+ */
 function processingSqlQuery(array $parameterList, $db = null)
 {
     if ($db === null) {
         $db = connectToDb();
     }
 
-    addLimit($parameterList);
-    $stmt = db_get_prepare_stmt($db, $parameterList['sql'], $parameterList['data']);
+    $params = addLimit($parameterList);
+    $stmt = db_get_prepare_stmt($db, $params['sql'], $params['data']);
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
     $result = true;
@@ -57,7 +62,7 @@ function processingSqlQuery(array $parameterList, $db = null)
  * Установка лимитов для результатов запрос, если лимит использован
  * @param array $parameterList
  */
-function addLimit(array &$parameterList)
+function addLimit(array $parameterList)
 {
     if (!empty($parameterList['limit'])) {
         if ((int)$parameterList['limit']) {
@@ -66,7 +71,7 @@ function addLimit(array &$parameterList)
         }
     }
 
-    return;
+    return $parameterList;
 }
 
 /** Установка оффсета для результатов запрос, если оффсет использован
@@ -376,11 +381,10 @@ function price_round($price)
  * @param array $lot_data Данные лота
  * @param array $lot_image Загруженное изображение
  * @param null $db Подключение к БД
- * @param int $limit
  *
  * @return array|int|string Id добавленного лота или массив ошибок
  */
-function saveLot(array $lot_data, array $lot_image, $db = null, $limit = 1)
+function saveLot(array $lot_data, array $lot_image, $db = null)
 {
     $errors = array_merge(checkFieldsSaveLot($lot_data), checkUplImage($lot_image, 'photo'));
 
@@ -402,9 +406,7 @@ function saveLot(array $lot_data, array $lot_image, $db = null, $limit = 1)
                 $lot_data['description'],
                 $lot_data['finish_date']
             ],
-            'limit' => $limit
         ];
-var_dump($parametersList);
         processingSqlQuery($parametersList, $db);
 
         return mysqli_insert_id(connectToDb());
