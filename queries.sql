@@ -58,7 +58,7 @@ FROM lots l
   LEFT JOIN bids b ON b.lot_id=l.id
   LEFT JOIN categories cat ON cat.id=l.category_id
 WHERE winner_id IS NULL
-GROUP BY l.id;;
+GROUP BY l.id;
 
 -- Показать лот по его id. Получите также название категории, к которой принадлежит лот
 -- Можно со звездочкой, но так не стоит делать.
