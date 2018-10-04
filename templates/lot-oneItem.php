@@ -10,8 +10,8 @@
                 <span class="lot__amount">Стартовая цена</span>
                 <span class="lot__cost"><?=price_round($start_price);?></b></span>
             </div>
-            <div class="lot__timer timer">
-                <?=((23 - date('G')) . ':' . (60 - date('i')));?>
+            <div class="lot__timer timer <?php lotFinishTime($finish_date) ? 'timer--finishing' : null ?>">
+                <?=lotFinishTime($finish_date);?>
             </div>
         </div>
     </div>
