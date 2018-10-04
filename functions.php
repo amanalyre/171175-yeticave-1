@@ -90,7 +90,34 @@ function addOffset(array &$parameterList)
 }
 
 /**
- * Получает список категорий
+ * Подсчет времени до завершения лота
+ * @param $finishTime Время завершения лота
+ * @param bool $secShow Включает отображение секунд
+ *
+ * @return string Время о конца торгов лота
+ */
+function lotFinishTime($finishTime, bool $secShow = false)
+{
+    if (is_int($finishTime)) {
+        $finishTime;
+    } else {
+        $finishTime = strtotime($finishTime);
+    }
+
+    $time = $finishTime - time();
+
+    if ($time < 0) {
+        return '00:00';
+    }
+
+    $format = '%02d:%02d';
+    !$secShow ?: $format .= ':%02d';
+
+    return sprintf($format, ($time / 3600) % 24, ($time / 60) % 60, $time % 60);
+}
+
+/**
+ * Получение списка категорий
  * @param int|null $limit необязательное поле лимита для запроса
  * @param null $db Ресурс соединения с ДБ
  * @return array|bool|null
@@ -114,7 +141,7 @@ function getCatList(int $limit = null, $db = null) {
  */
 function getLotsList(int $limit = null, $db = null)
 {
-    $sql = 'SELECT l.lot_name, l.start_price, l.img_url, l.id, MAX(b.bid_price) AS cur_price, cat.cat_name, COUNT(b.lot_id) AS bids_qty
+    $sql = 'SELECT l.lot_name, l.start_price, l.img_url, l.id, MAX(b.bid_price) AS cur_price, cat.cat_name, COUNT(b.lot_id) AS bids_qty, l.finish_date
               FROM lots l
               LEFT JOIN bids b ON b.lot_id=l.id
               LEFT JOIN categories cat ON cat.id=l.category_id
@@ -138,7 +165,7 @@ function getLotsList(int $limit = null, $db = null)
  */
 function getLot(int $lot_id, $db = null)
 {
-    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description, MAX(b.bid_price) AS cur_price, l.bid_step
+    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description, MAX(b.bid_price) AS cur_price, l.bid_step, l.finish_date
               FROM lots l
                 LEFT JOIN bids b ON b.lot_id = l.id
                 LEFT JOIN categories c ON c.id=l.category_id
@@ -156,7 +183,7 @@ function getLot(int $lot_id, $db = null)
 function lotPrice($lot_info)
 {
     if (is_null($lot_info['cur_price'])) {
-        $lot_info['cur_price'] = price_round($lot_info['start_price']);
+        $lot_info['cur_price'] = $lot_info['start_price'];
 
     } else {
         $lot_info['cur_price'];
@@ -485,7 +512,7 @@ function formRequiredFields(array $form, array $fields)
             $errors[$field] = 'Поле не заполнено';
         }
     }
-
+//var_dump($errors);
     return $errors;
 }
 
@@ -546,23 +573,61 @@ function saveImage(array $image, string $dir)
  */
 function checkNewBet($newBet, $minBet)
 {
-    $errors = formRequiredFields($newBet, ['bet']);
-        if (empty($errors)) {
-        if (filter_var($newBet, FILTER_VALIDATE_INT)) {
-            if ($newBet < $minBet) {
-                $errors['bet'] = 'Ставка не может быть ниже минимальной';
+    $errors = formRequiredFields($newBet, ['cost']);
+
+    if (empty($errors)) {
+        if (filter_var($newBet['cost'], FILTER_VALIDATE_INT)) {
+
+            if ($newBet['cost'] < $minBet) {
+                $errors['cost'] = 'Ставка не может быть ниже минимальной';
             }
         } else {
-            $errors['bet'] = 'Неверно указана цена';
+            echo "fignia";
+            $errors['cost'] = 'Неверно указана цена';
         }
     }
-
     return $errors;
 }
 
-function betAdd()
+function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
 {
-    // #TODO Дописать сюда.
+    $errors = checkNewBet($newBet, $minPrice);
+    if (empty($errors)) {
+        $sql = 'INSERT INTO bids
+                      (bid_date, bid_price, user_id, lot_id)
+                    VALUES 
+                      (NOW(), ?, ?, ?)';
+        $parametersList = [
+            'sql' => $sql,
+            'data' => [
+                $newBet['cost'],
+                getUserSessionData()['id'],
+                $lotId,
+
+            ],
+        ];
+        processingSqlQuery($parametersList, $db);
+
+        return true;
+    } else {
+        return $errors;
+    }
+}
+
+/**
+ * Возвращает минимальную ставку на данный момент
+ * @param $lot_info array Информация о лоте из БД
+ * @param $type bool Позволяет выбрать, форматировать ли с рублем ответ
+ *
+ * @return string Минимальная ставка
+ */
+function minBet($lot_info, $type = false)
+{
+    if ($type === false) {
+    return price_round($lot_info['cur_price'] + $lot_info['bid_step']);
+    } else {
+        return $lot_info['cur_price'] + $lot_info['bid_step'];
+    }
 }
 
 /**

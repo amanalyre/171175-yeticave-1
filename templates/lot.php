@@ -10,8 +10,9 @@
         </div>
         <div class="lot-item__right">
             <div class="lot-item__state">
-                <div class="lot-item__timer timer">
-                    10:54:12
+                <div class="lot-item__timer timer <?php lotFinishTime($lot_info['finish_date']) ? 'timer--finishing' : null ?>">
+                    <?=lotFinishTime($lot_info['finish_date'], true);?>
+                    <!--#TODO и фигли ты тут не красишься в красный?-->
                 </div>
                 <div class="lot-item__cost-state">
                     <div class="lot-item__rate">
@@ -19,18 +20,20 @@
                         <span class="lot-item__cost"><?=price_round($lot_info['cur_price']) ?></span>
                     </div>
                     <div class="lot-item__min-cost">
-                        Мин. ставка <span><?=price_round($lot_info['cur_price'] + $lot_info['bid_step']) ?></span>
+                        Мин. ставка <span><?= minBet($lot_info) ?></span>
                     </div>
                 </div>
                 <?php if (isAuthorized()):?>
-                <form class="lot-item__form<?php echo (empty($errors['bet'])) ? '' : ' form__item--invalid' ?>" action="betAdd.php" method="post">
-                    <p class="lot-item__form-item">
+                <form class="lot-item__form" action="lot.php?id=<?= $lot_info['id'] ?>" method="post">
+                    <p class="lot-item__<?= empty($errors['cost']) ? "form-item" : "form-item form__item--invalid" ?>">
                         <label for="cost">Ваша ставка</label>
-                        <input id="cost" type="number" name="bet" placeholder="<?=price_round($lot_info['cur_price'] + $lot_info['bid_step']) ?>">
+                        <input id="cost" type="number" name="bet[cost]" placeholder="<?=minBet($lot_info) ?>">
                     </p>
                     <button type="submit" class="button">Сделать ставку</button>
-                    <span class="form__error"><?= $errors['bet'] ?? '' ?></span>
                 </form>
+                    <div class="form__item form__item <?php echo empty($errors['cost']) ? : 'form__item--invalid' ?>">
+                        <span class="form__error"><?= $errors['cost'] ?></span>
+                    </div>
                 <?php endif; ?>
             </div>
             <div class="history">
