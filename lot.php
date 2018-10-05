@@ -24,11 +24,22 @@ if ($lot_id == false || $lot_info == false) {
 
 $lot_info =  getLot($lot_id);
 $lot_info = lotPrice($lot_info);
+
+$betList = getLotBets($lot_id);
+$betsCount = getLotBetsCount($lot_id);
 $newBet = $_POST['bet'];
+
+
+if ($betsCount > 0) {
+    $betListContent = ''; // содержит все ставки на лот
+    foreach ($betList as $bet) {
+        $betListContent .= renderTemplate('betListTempl', $bet);
+    }
+} else {$betListContent = "На этот лот нет ставок"; }
+
 
 if (isAuthorized() && $_POST) {
     $minPrice = minBet($lot_info, true);
-    //var_dump($minPrice);
     $betAdded = betAdd($lot_info['id'], $newBet, $minPrice);
 
     if ($betAdded === true) {
@@ -36,14 +47,16 @@ if (isAuthorized() && $_POST) {
         exit;
     } else {
         $errors = $betAdded;
-        var_dump($errors);
     }
 }
 
 
 $templContent = renderTemplate('lot', [
     'lot_info' => $lot_info,
-    'errors'   => $errors ?? []]);
+    'errors'   => $errors ?? [],
+    '$betList' => $betList,
+    'betsCount'=> $betsCount,
+    'betListContent' => $betListContent]);
 
 $categories = getCatList();
 
