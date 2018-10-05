@@ -3,11 +3,6 @@
 require_once("functions.php");
 require_once ('connection.php');
 
-//if (isAuthorized() === false) {
-//    http_response_code(403); #TODO Было бы хорошо тут редиректить на 403 страницу. Или форму авторизации
-//    exit;
-//}
-
 $categories = getCatList();
 
 if ($_POST) {

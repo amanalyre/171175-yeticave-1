@@ -180,6 +180,11 @@ function getLot(int $lot_id, $db = null)
     return processingSqlQuery($parametersList, $db);
 }
 
+/**
+ * Возвращает
+ * @param $lot_info
+ * @return mixed
+ */
 function lotPrice($lot_info)
 {
     if (is_null($lot_info['cur_price'])) {
@@ -512,7 +517,6 @@ function formRequiredFields(array $form, array $fields)
             $errors[$field] = 'Поле не заполнено';
         }
     }
-//var_dump($errors);
     return $errors;
 }
 
@@ -628,6 +632,54 @@ function minBet($lot_info, $type = false)
     } else {
         return $lot_info['cur_price'] + $lot_info['bid_step'];
     }
+}
+
+function getLotBets(int $lotId, $db = null)
+{
+    $sql = 'SELECT b.bid_date, b.bid_price, b.lot_id, u.us_name
+            FROM bids b
+            LEFT JOIN users u ON b.user_id = u.id
+            WHERE lot_id = ? 
+            ORDER BY bid_date DESC'; #TODO выпили тут звездочку нафиг!
+    $parametersList = [
+        'sql' => $sql,
+        'data' => [
+            $lotId
+        ],
+    ];
+    $betList = processingSqlQuery($parametersList, $db);
+
+    return $betList;
+}
+
+/**
+ * Возвращает количество ставок на лот
+ * @param int $lotId
+ * @param null $db
+ * @return array|bool|null
+ */
+function getLotBetsCount(int $lotId, $db = null)
+{
+    $sql = 'SELECT COUNT(lot_id) as betsCount
+            FROM bids
+            WHERE lot_id = ?'; #TODO выпили тут звездочку нафиг!
+    $parametersList = [
+        'sql' => $sql,
+        'data' => [
+            $lotId
+        ],
+    ];
+    $betListCount = processingSqlQuery($parametersList, $db);
+
+    return $betListCount;
+}
+
+function formatTime($date)
+{
+    $timestamp = strtotime($date);
+    $time = date( 'd.m.y в G:i', $timestamp);
+
+    return $time;
 }
 
 /**
