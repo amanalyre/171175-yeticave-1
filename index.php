@@ -12,6 +12,7 @@ foreach ($lotsList as $lot) {
     $lotListContent .= renderTemplate('lot-oneItem', $lot);
 }
 
+
 $categories = getCatList();
 
 
