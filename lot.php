@@ -29,13 +29,18 @@ $betList = getLotBets($lot_id);
 $betsCount = getLotBetsCount($lot_id);
 $newBet = $_POST['bet'];
 
-
-if ($betsCount > 0) {
-    $betListContent = ''; // содержит все ставки на лот
-    foreach ($betList as $bet) {
-        $betListContent .= renderTemplate('betListTempl', $bet);
+$betListContent = ''; // содержит все ставки на лот
+if ($betsCount['betsCount'] > 0) {
+    if ($betsCount['betsCount'] === 1) {
+        $betListContent = renderTemplate('betListTempl', $betList);
+    } else {
+        foreach ($betList as $bet) {
+            $betListContent .= renderTemplate('betListTempl', $bet);
+        }
     }
-} else {$betListContent = "На этот лот нет ставок"; }
+} elseif (strtotime($lot_info['finish_date']) < time()) {
+    $betListContent = "Торги окончены";
+} else {$betListContent = "На этот лот нет ставок";}
 
 
 if (isAuthorized() && $_POST) {
