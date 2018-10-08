@@ -44,6 +44,7 @@ function processingSqlQuery(array $parameterList, $db = null)
     }
 
     $params = addLimit($parameterList);
+
     $stmt = db_get_prepare_stmt($db, $params['sql'], $params['data']);
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
@@ -61,6 +62,7 @@ function processingSqlQuery(array $parameterList, $db = null)
 /**
  * Установка лимитов для результатов запрос, если лимит использован
  * @param array $parameterList
+ * @return array $parameterList
  */
 function addLimit(array $parameterList)
 {
@@ -91,7 +93,7 @@ function addOffset(array &$parameterList)
 
 /**
  * Подсчет времени до завершения лота
- * @param $finishTime Время завершения лота
+ * @param string $finishTime Время завершения лота
  * @param bool $secShow Включает отображение секунд
  *
  * @return string Время о конца торгов лота
@@ -165,7 +167,7 @@ function getLotsList(int $limit = null, $db = null)
  */
 function getLot(int $lot_id, $db = null)
 {
-    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description, MAX(b.bid_price) AS cur_price, l.bid_step, l.finish_date
+    $sql = 'SELECT l.lot_name, l.start_price, c.cat_name, l.id, l.img_url, l.lot_description, MAX(b.bid_price) AS cur_price, l.bid_step, l.finish_date, l.author_id
               FROM lots l
                 LEFT JOIN bids b ON b.lot_id = l.id
                 LEFT JOIN categories c ON c.id=l.category_id
@@ -205,7 +207,7 @@ function lotPrice($lot_info)
  *
  * @return array|int|string Id добавленного лота или массив ошибок
  */
-function saveUser(array $user_data, array $user_avatar, $db = null)
+function saveUser(array $user_data, array $user_avatar)
 {
     $errors = array_merge(checkFieldsSaveUser($user_data), checkUplImage($user_avatar, 'photo'));
 
@@ -213,21 +215,20 @@ function saveUser(array $user_data, array $user_avatar, $db = null)
         $config = getConfig();
         if ($imageName = saveImage($user_avatar, $config['avatarDirUpl']))
             $sql = 'INSERT INTO users
-                      (us_name, us_email, us_password, create_date, us_image)
+                      (us_name, us_email, us_password, create_date, us_image, us_contacts)
                     VALUES
-                      (?, ?, ?, NOW(), ?);';
+                      (?, ?, ?, NOW(), ?, ?)';
         $parametersList = [
             'sql' => $sql,
             'data' => [
                 $user_data['name'],
                 $user_data['email'],
                 password_hash(trim($user_data['password']), PASSWORD_DEFAULT),
-                $imageName
+                $imageName,
+                $user_data['message']
             ],
-            'limit' => 1
         ];
-
-        processingSqlQuery($parametersList, $db);
+        processingSqlQuery($parametersList);
 
         return true;
     } else {
@@ -238,6 +239,7 @@ function saveUser(array $user_data, array $user_avatar, $db = null)
 /**
  * Проверяет обязательые поля в добавлении нового пользователя
  * @param array $user_data
+ * @return array $errors
  */
 function checkFieldsSaveUser(array $user_data)
 {
@@ -306,6 +308,7 @@ function login(array $user_data)
 /**
  * Проверяет обязательые поля в авторизации пользователя
  * @param array $user_data
+ * @return array $errors
  */
 function checkFieldsLogin(array $user_data)
 {
@@ -440,7 +443,7 @@ function saveLot(array $lot_data, array $lot_image, $db = null)
             $sql = 'INSERT INTO lots
                       (lot_name, create_date, category_id, start_price, bid_step, img_url, lot_description, author_id, finish_date)
                     VALUES 
-                      (?, NOW(), ?, ?, ?, ?, ?, 1, ?)';
+                      (?, NOW(), ?, ?, ?, ?, ?, ?, ?)';
         $parametersList = [
             'sql' => $sql,
             'data' => [
@@ -450,6 +453,7 @@ function saveLot(array $lot_data, array $lot_image, $db = null)
                 $lot_data['step'],
                 $imageName,
                 $lot_data['description'],
+                getUserSessionData()['id'],
                 $lot_data['finish_date']
             ],
         ];
@@ -634,13 +638,19 @@ function minBet($lot_info, $type = false)
     }
 }
 
+/**
+ * Получает список текущих ставок на лот
+ * @param int $lotId
+ * @param null $db
+ * @return array|bool|null
+ */
 function getLotBets(int $lotId, $db = null)
 {
     $sql = 'SELECT b.bid_date, b.bid_price, b.lot_id, u.us_name
             FROM bids b
             LEFT JOIN users u ON b.user_id = u.id
             WHERE lot_id = ? 
-            ORDER BY bid_date DESC'; #TODO выпили тут звездочку нафиг!
+            ORDER BY bid_date DESC';
     $parametersList = [
         'sql' => $sql,
         'data' => [
@@ -662,7 +672,7 @@ function getLotBetsCount(int $lotId, $db = null)
 {
     $sql = 'SELECT COUNT(lot_id) as betsCount
             FROM bids
-            WHERE lot_id = ?'; #TODO выпили тут звездочку нафиг!
+            WHERE lot_id = ?';
     $parametersList = [
         'sql' => $sql,
         'data' => [
@@ -674,12 +684,58 @@ function getLotBetsCount(int $lotId, $db = null)
     return $betListCount;
 }
 
+/**
+ * Форматирует вывод времени для вывода на списке ставок
+ * @param $date
+ * @return false|string
+ */
 function formatTime($date)
 {
     $timestamp = strtotime($date);
     $time = date( 'd.m.y в G:i', $timestamp);
 
     return $time;
+}
+
+/**
+ * Подсказывает, показывать ли форму добавления ставки на лог
+ * @param $lot_info
+ * @return bool
+ */
+function showBetForm($lot_info)
+{
+    if (isAuthorized() && strtotime($lot_info['finish_date']) > time()) {
+        if (($lot_info['author_id'] !== getUserSessionData()['id']) &&
+            (lastLotBidder($lot_info['id'])['user_id'] !== getUserSessionData()['id']) ||
+            (getLotBetsCount($lot_info['id']) == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Получаем ID пользователя, сделавшего последнюю ставку на лот
+ * @param $lotId
+ * @param int $limit
+ * @param null $db
+ * @return array|bool|null
+ */
+function lastLotBidder($lotId, $limit = 1)
+{
+    $sql = 'SELECT user_id
+            FROM bids
+            WHERE lot_id = ?
+            ORDER BY bid_date DESC';
+    $parametersList = [
+        'sql' => $sql,
+        'data' => [
+            $lotId
+        ],
+        'limit' => $limit
+    ];
+    $lastBidder = processingSqlQuery($parametersList);
+    return $lastBidder;
 }
 
 /**
