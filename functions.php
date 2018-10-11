@@ -1,10 +1,14 @@
 <?php
 
 require_once ('mysql_helper.php');
+error_reporting(E_ALL);
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// получаем коннект к базе
+/**
+ * получаем коннект к базе
+ * @return mysqli
+ */
 function connectToDb()
 {
     static $db;
@@ -75,10 +79,11 @@ function addLimit(array $parameterList)
     return $parameterList;
 }
 
-/** Установка оффсета для результатов запрос, если оффсет использован
+/** Установка оффсета для результатов запроса, если оффсет использован
  * @param array $parameterList
+ * @return array $parameterList
  */
-function addOffset(array &$parameterList)
+function addOffset(array $parameterList)
 {
     if (!empty($parameterList['offset'])) {
         if ((int)$parameterList['offset']) {
@@ -87,7 +92,7 @@ function addOffset(array &$parameterList)
         }
     }
 
-    return;
+    return $parameterList;
 }
 
 /**
@@ -99,12 +104,6 @@ function addOffset(array &$parameterList)
  */
 function lotFinishTime($finishTime, bool $secShow = false)
 {
-//    if (is_int($finishTime)) {
-//        $finishTime;
-//    } else {
-//        $finishTime = strtotime($finishTime);
-//    }
-
     $finishTime = strtotime($finishTime);
 
     $time = $finishTime - time();
@@ -184,7 +183,7 @@ function getLot(int $lot_id, $db = null)
 }
 
 /**
- * Возвращает
+ * Возвращает текущую цену лота
  * @param $lot_info
  * @return mixed
  */
@@ -274,7 +273,13 @@ function checkFieldsSaveUser(array $user_data)
     return $errors;
 }
 
-function getUserInfoByEmail(string $email, $limit = 1) // Здесь массив нормальный
+/**
+ * Получает юзера по мейлу
+ * @param string $email
+ * @param int $limit
+ * @return array|bool|null
+ */
+function getUserInfoByEmail(string $email, $limit = 1)
 {
     if (empty($email)) {
         return false;
@@ -301,21 +306,41 @@ function getUserInfoByEmail(string $email, $limit = 1) // Здесь масси�
  */
 function login(array $user_data)
 {
-    $errors = checkFieldsLogin($user_data);
-    $foundUser = getUserInfoByEmail($user_data['email']); // данные юзера. #todo проверь с несуществующим
+    $result = [
+        'result' => true,
+        'user'   => [],
+        'errors' => []
+    ];
 
-    if (empty($errors) && $foundUser) { // пустые ошибки
+    $errors = checkFieldsLogin($user_data);
+    $foundUser = getUserInfoByEmail($user_data['email']); // данные юзера.
+
+    if (empty($errors) && $foundUser) {
         if (password_verify($user_data['password'], $foundUser['us_password'])) {
             $foundUser['us_password'] = passwordNeedsReHash($foundUser, $user_data['password']);
-            return [$foundUser];
+            $result = [
+                'result' => true,
+                'user'   => $foundUser,
+                'errors' => [],
+            ];
         } else {
             $errors['password'] = 'Неправильный логин или пароль';
+            $result = [
+                'result' => false,
+                'user'   => [],
+                'errors' => $errors
+            ];
         }
     } else {
         $errors['email'] = 'Неправильный логин или пароль';
+        $result = [
+            'result' => false,
+            'user'   => [],
+            'errors' => $errors
+        ];
     }
 
-    return [false, $errors];
+    return $result;
 }
 
 /**

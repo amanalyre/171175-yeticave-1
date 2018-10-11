@@ -42,6 +42,8 @@ if ($betsCount['betsCount'] > 0) {
     $betListContent = "Торги окончены";
 } else {$betListContent = "На этот лот нет ставок";}
 
+$minPrice = null;
+$betAdded = null;
 
 if (isAuthorized() && $_POST) {
     $minPrice = minBet($lot_info, true);
