@@ -7,6 +7,10 @@ $categories = getCatList();
 
 #TODO Если были допущены ошибки (не заполнены все поля, email занят и т.д.), то не сохранять данные, а показать ошибки в форме под соответствующими полями.
 
+$user = [];
+$avatar = [];
+$resultAddUser=[];
+
 if ($_POST) {
     $user = $_POST['user'];
     $avatar = $_FILES['photo'];

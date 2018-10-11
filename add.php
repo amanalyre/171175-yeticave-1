@@ -18,6 +18,9 @@ if (isAuthorized() === false) {
     exit;
 }
 
+$lot = [];
+$image = [];
+
 if ($_POST) {
     $lot = $_POST['lot'];
     $image = $_FILES['photo'];
