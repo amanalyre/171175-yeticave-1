@@ -5,17 +5,19 @@ require_once ('connection.php');
 
 $categories = getCatList();
 
+#TODO Если были допущены ошибки (не заполнены все поля, email занят и т.д.), то не сохранять данные, а показать ошибки в форме под соответствующими полями.
+
 if ($_POST) {
     $user = $_POST['user'];
     $avatar = $_FILES['photo'];
 
     $resultAddUser = saveUser($user, $avatar); //#TODO это поле должно совпадать с name в форме шаблона
 
-    if ($resultAddUser === true) {
-//        header('Location: logIn.php');
-        header('Location: /');
+    if ($resultAddUser['result'] === true) {
+        header('Location: logIn.php');
+       // header('Location: /');
     } else {
-        $errors = $resultAddUser;
+        $errors = $resultAddUser['errors'];
     }}
 
 try {
