@@ -6,18 +6,19 @@ require_once ("configure.php");
 
 $categories = getCatList();
 
+$user = [];
 if ($_POST) {
     $user = $_POST['user'];
 
-    list($foundUser, $errorsFound) = login($user);
-    if ($foundUser !== false) {
-        $_SESSION['user'] = $foundUser;
+    $result = login($user);
+    if ($result['result'] == true) {
+        $_SESSION['user'] = $result['user'];
         setcookie('sessWasStarted', 'hi', time()+60*60*24*30);
         header('Location: index.php');
 
         exit;
     } else {
-        $errors = $errorsFound;
+        $errors = $result['errors'];
     }
 }
 
