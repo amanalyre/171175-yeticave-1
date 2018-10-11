@@ -10,8 +10,7 @@ function connectToDb()
     static $db;
     if ($db === null) {
         $config = getConfig();
-        //$db = mysqli_connect($config['db_host'], $config['db_user'], $config['db_password'], $config['db_database']);
-        $db = mysqli_connect('localhost', 'root', '', 'YetiCave');
+        $db = mysqli_connect($config['db_host'], $config['db_user'], $config['db_password'], $config['db_database']);
         mysqli_set_charset($db, 'utf8');
         if (!$db) {
             print('Ошибка: Невозможно подключиться к MySQL  ' .mysqli_connect_error());
@@ -100,11 +99,13 @@ function addOffset(array &$parameterList)
  */
 function lotFinishTime($finishTime, bool $secShow = false)
 {
-    if (is_int($finishTime)) {
-        $finishTime;
-    } else {
-        $finishTime = strtotime($finishTime);
-    }
+//    if (is_int($finishTime)) {
+//        $finishTime;
+//    } else {
+//        $finishTime = strtotime($finishTime);
+//    }
+
+    $finishTime = strtotime($finishTime);
 
     $time = $finishTime - time();
 
@@ -112,7 +113,7 @@ function lotFinishTime($finishTime, bool $secShow = false)
         return '00:00';
     }
 
-    $format = '%02d:%02d';
+    $format = '%02d:%02d'; // тут в формате ожидается по 2 символа
     !$secShow ?: $format .= ':%02d';
 
     return sprintf($format, ($time / 3600) % 24, ($time / 60) % 60, $time % 60);
@@ -203,37 +204,49 @@ function lotPrice($lot_info)
  * Создает нового юзера
  * @param array $user_data Данные юзера
  * @param array $user_avatar Загруженное изображение
- * @param null $db Подключение к БД
  *
  * @return array|int|string Id добавленного лота или массив ошибок
  */
 function saveUser(array $user_data, array $user_avatar)
 {
+    $result = [
+        'result' => true,
+        'errors' => [],
+    ];
+
     $errors = array_merge(checkFieldsSaveUser($user_data), checkUplImage($user_avatar, 'photo'));
 
     if (empty($errors)) {
         $config = getConfig();
-        if ($imageName = saveImage($user_avatar, $config['avatarDirUpl']))
+        if ($imageName = saveImage($user_avatar, $config['avatarDirUpl'])) {
             $sql = 'INSERT INTO users
                       (us_name, us_email, us_password, create_date, us_image, us_contacts)
                     VALUES
                       (?, ?, ?, NOW(), ?, ?)';
-        $parametersList = [
-            'sql' => $sql,
-            'data' => [
-                $user_data['name'],
-                $user_data['email'],
-                password_hash(trim($user_data['password']), PASSWORD_DEFAULT),
-                $imageName,
-                $user_data['message']
-            ],
-        ];
-        processingSqlQuery($parametersList);
+            $parametersList = [
+                'sql' => $sql,
+                'data' => [
+                    $user_data['name'],
+                    $user_data['email'],
+                    password_hash(trim($user_data['password']), PASSWORD_DEFAULT),
+                    $imageName,
+                    $user_data['message']
+                ],
+            ];
+            processingSqlQuery($parametersList);
 
-        return true;
+            $result = [
+                'result' => true,
+                'errors' => [],
+            ];
+        }
     } else {
-        return $errors;
+        $result = [
+            'result' => false,
+            'errors' => $errors,
+        ];
     }
+    return $result;
 }
 
 /**
@@ -435,11 +448,16 @@ function price_round($price)
  */
 function saveLot(array $lot_data, array $lot_image, $db = null)
 {
+    $result = [
+        'result' => true,
+        'errors' => [],
+    ];
+
     $errors = array_merge(checkFieldsSaveLot($lot_data), checkUplImage($lot_image, 'photo'));
 
     if (empty($errors)) {
         $config = getConfig();
-        if ($imageName = saveImage($lot_image, $config['imgDirUpl']))
+        if ($imageName = saveImage($lot_image, $config['imgDirUpl'])) {
             $sql = 'INSERT INTO lots
                       (lot_name, create_date, category_id, start_price, bid_step, img_url, lot_description, author_id, finish_date)
                     VALUES 
@@ -459,10 +477,18 @@ function saveLot(array $lot_data, array $lot_image, $db = null)
         ];
         processingSqlQuery($parametersList, $db);
 
-        return mysqli_insert_id(connectToDb());
+            $result = [
+                'result' => mysqli_insert_id(connectToDb()),
+                'errors' => [],
+            ];
+        }
     } else {
-        return $errors;
+        $result = [
+            'result' => true,
+            'errors' => $errors,
+        ];
     }
+    return $result;
 };
 
 /**
@@ -718,7 +744,6 @@ function showBetForm($lot_info)
  * Получаем ID пользователя, сделавшего последнюю ставку на лот
  * @param $lotId
  * @param int $limit
- * @param null $db
  * @return array|bool|null
  */
 function lastLotBidder($lotId, $limit = 1)
@@ -740,7 +765,8 @@ function lastLotBidder($lotId, $limit = 1)
 
 /**
  * Рендерит указанный шаблон
- * @param string templ название шаблона,
+ * @param $templ string название шаблона,
+ * @param $data array данные для шаблона
  * @return string готовый для вставки шаблон
  * @throws $e;
  */
