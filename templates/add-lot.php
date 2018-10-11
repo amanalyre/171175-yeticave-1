@@ -16,7 +16,6 @@
                     <option value="<?=$cat['id']; ?>" <?=$category == $cat['id'] ? 'selected' : ''; ?>> <?=$cat['cat_name']; ?></option>
                 <? endforeach; ?>
             </select>
-            </select>
             <span class="form__error"><?= $errors['category'] ?? '' ?></span>
         </div>
     </div>

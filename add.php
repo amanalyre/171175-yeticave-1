@@ -24,10 +24,10 @@ if ($_POST) {
 
     $resultAddLot = saveLot($lot, $image); //#TODO это поле должно совпадать с name в форме шаблона
 
-    if (is_numeric($resultAddLot)) {
-        header('Location: lot.php?id=' . $resultAddLot);
+    if (is_numeric($resultAddLot['result'])) {
+        header('Location: lot.php?id=' . $resultAddLot['result']);
     } else {
-        $errors = $resultAddLot;
+        $errors = $resultAddLot['errors'];
     }
 }
 
