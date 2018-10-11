@@ -4,7 +4,7 @@
 
         <div class="form__item<?php echo (empty($errors['name'])) ? '' : ' form__item--invalid' ?>"> <!-- form__item--invalid -->
             <label for="lot-name">Наименование</label>
-            <input id="lot-name" type="text" name="lot[name]" value="<?=$name; ?>" placeholder="Введите наименование лота" >
+            <input id="lot-name" type="text" name="lot[name]" value="<?=htmlspecialchars($name); ?>" placeholder="Введите наименование лота" >
             <span class="form__error"><?= $errors['name'] ?? '' ?></span>
         </div>
 
@@ -21,7 +21,7 @@
     </div>
     <div class="form__item <?php echo (empty($errors['description'])) ? "form__item--wide" : "form__item form__item--wide form__item--invalid" ?>">
         <label for="description">Описание</label>
-        <textarea id="description" name="lot[description]" placeholder="Укажите описание лота" ><?=$description;?></textarea>
+        <textarea id="description" name="lot[description]" placeholder="Укажите описание лота" ><?=htmlspecialchars($description);?></textarea>
         <span class="form__error"><?= $errors['description'] ?? '' ?></span>
     </div>
 

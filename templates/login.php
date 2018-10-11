@@ -17,8 +17,3 @@
     <?php endif?>
     <a class="text-link" href="signUp.php">Создать новый аккаунт</a>
 </form>
-
-<!--srtongPassword проверка авторизации
-if (isset($_SESSION['user'])) {
-        $page_content = include_template('welcome.php', ['username' => $_SESSION['user']['name']]);
-    }-->
