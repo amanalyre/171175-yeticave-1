@@ -22,7 +22,6 @@ $templContent = renderTemplate('index', [
 $layoutContent = renderTemplate('layout', [
     'pageContent' => $templContent,
     'categories' => $categories,
-    'isAuth' => empty(getUserSessionData()) ? false : true,
     'userName' => getUserSessionData()['us_name'] ?? null,
     'userAvatar' => getUserSessionData()['us_image'] ?? null,
     'pageName' => 'Main - YetiCave']);

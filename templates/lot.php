@@ -18,17 +18,17 @@
                 <div class="lot-item__cost-state">
                     <div class="lot-item__rate">
                         <span class="lot-item__amount">Текущая цена</span>
-                        <span class="lot-item__cost"><?=price_round($lot_info['cur_price']) ?></span>
+                        <span class="lot-item__cost"><?=htmlspecialchars(price_round($lot_info['cur_price'])) ?></span>
                     </div>
                     <div class="lot-item__min-cost">
-                        Мин. ставка <span><?= minBet($lot_info) ?></span>
+                        Мин. ставка <span><?= htmlspecialchars(minBet($lot_info)) ?></span>
                     </div>
                 </div>
                 <?php if (showBetForm($lot_info)):?>
                 <form class="lot-item__form" action="lot.php?id=<?= $lot_info['id'] ?>" method="post">
                     <p class="lot-item__<?= empty($errors['cost']) ? "form-item" : "form-item form__item--invalid" ?>">
                         <label for="cost">Ваша ставка</label>
-                        <input id="cost" type="number" name="bet[cost]" placeholder="<?=minBet($lot_info) ?>">
+                        <input id="cost" type="number" name="bet[cost]" placeholder="<?=htmlspecialchars(minBet($lot_info)) ?>">
                     </p>
                     <button type="submit" class="button">Сделать ставку</button>
                 </form>

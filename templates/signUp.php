@@ -3,7 +3,7 @@
 
     <div class="form__item<?php echo (empty($errors['email'])) ? '' : ' form__item--invalid' ?>"> <!-- form__item--invalid -->
         <label for="email">E-mail*</label>
-        <input id="email" type="text" name="user[email]" placeholder="Введите e-mail" value="<?=$email; ?>">
+        <input id="email" type="text" name="user[email]" placeholder="Введите e-mail" value="<?=htmlspecialchars($email); ?>">
         <span class="form__error"><?= $errors['email'] ?? '' ?></span>
     </div>
     <div class="form__item <?php echo (empty($errors['password'])) ? '' : ' form__item--invalid' ?>">
@@ -18,12 +18,12 @@
     </div>
     <div class="form__item<?php echo (empty($errors['name'])) ? '' : ' form__item--invalid' ?>">
         <label for="name">Имя*</label>
-        <input id="name" type="text" name="user[name]" placeholder="Введите имя" value="<?=$name; ?>">
+        <input id="name" type="text" name="user[name]" placeholder="Введите имя" value="<?=htmlspecialchars($name); ?>">
         <span class="form__error"><?= $errors['name'] ?? '' ?></span>
     </div>
     <div class="form__item<?php echo (empty($errors['message'])) ? '' : ' form__item--invalid' ?>">
         <label for="message">Биография*</label>
-        <textarea id="message" name="user[message]" placeholder="Напишите пару слов о себе" ><?=$message;?></textarea>
+        <textarea id="message" name="user[message]" placeholder="Напишите пару слов о себе" ><?=htmlspecialchars($message);?></textarea>
         <span class="form__error"><?= $errors['message'] ?? '' ?></span>
     </div>
 
@@ -62,6 +62,6 @@
     <a class="text-link" href="login.php">Уже есть аккаунт</a>
     <p>
     <div align="left">
-        <a class="text-link" href="lot.php?id=7">Я еще не решился...</a>
+        <a class="text-link" href="/">Я еще не решился...</a>
     </div>
 </form>
