@@ -49,11 +49,11 @@ if (isAuthorized() && $_POST) {
     $minPrice = minBet($lot_info, true);
     $betAdded = betAdd($lot_info['id'], $newBet, $minPrice);
 
-    if ($betAdded === true) {
+    if ($betAdded['result'] === true) {
         header('Location: lot.php?id=' . $lot_info['id']);
         exit;
     } else {
-        $errors = $betAdded;
+        $errors = $betAdded['errors'];
     }
 }
 
@@ -71,7 +71,6 @@ $layoutContent = renderTemplate('layout', [
     'pageContent' => $templContent,
     'categories'  => $categories,
     'pageName'    => $lot_info['lot_name'],
-    'isAuth'      => empty(getUserSessionData()) ? false : true,
     'userName'    => getUserSessionData()['us_name'] ?? null,
     'userAvatar'  => getUserSessionData()['us_image'] ?? null]);
 

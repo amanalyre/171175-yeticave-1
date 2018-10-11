@@ -650,6 +650,11 @@ function checkNewBet($newBet, $minBet)
 
 function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
 {
+    $result = [
+        'result' => true,
+        'errors' => [],
+    ];
+
     $errors = checkNewBet($newBet, $minPrice);
     if (empty($errors)) {
         $sql = 'INSERT INTO bids
@@ -667,10 +672,17 @@ function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
         ];
         processingSqlQuery($parametersList, $db);
 
-        return true;
+        $result = [
+            'result' => true,
+            'errors' => []
+            ];
     } else {
-        return $errors;
+        $result = [
+            'result' => true,
+            'errors' => $errors
+        ];
     }
+    return $result;
 }
 
 /**

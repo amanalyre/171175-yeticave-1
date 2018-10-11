@@ -38,7 +38,6 @@ $layoutContent = renderTemplate('layout', [
     'pageContent' => $templContent,
     'categories'  => $categories,
     'pageName'    => 'Вход - Yeticave',
-    'isAuth' => empty(getUserSessionData()) ? false : true,
     'userName' => getUserSessionData()['us_name'] ?? null,
     'userAvatar' => getUserSessionData()['us_image'] ?? null]);
 
