@@ -648,6 +648,15 @@ function checkNewBet($newBet, $minBet)
     return $errors;
 }
 
+/**
+ * Добавляет новую ставку в базу
+ * @param int $lotId идентификатор лота
+ * @param array $newBet новая ставка пользователя
+ * @param int $minPrice минимальная текущая ставка
+ * @param null $db БД
+ *
+ * @return array
+ */
 function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
 {
     $result = [
