@@ -25,7 +25,7 @@
 
             <?php if (isAuthorized()): ?>
                 <div class="user-menu__image">
-                  <img src="<?=$userAvatar; ?>" width=40 height=40 alt='Пользователь'>
+                  <img src="<?=$userAvatar; ?>" width=40 height=40 alt='<?=$userName;?>'>
                 </div>
                 <div class="user-menu__logged">
                   <p><?=$userName;?></p>
@@ -48,12 +48,11 @@
 <main class="container">
     <nav class="nav">
         <ul class="nav__list container">
-            <?php
-            foreach ($categories as $cat): ?>
+            <?php foreach ($categories as $cat): ?>
                 <li class="nav__item">
                     <a href="all-lots.html"> <?=$cat['cat_name']; ?></a>
                 </li>
-            <? endforeach; ?>
+            <?php endforeach; ?>
         </ul>
     </nav>
     <?=$pageContent;?>
@@ -62,12 +61,11 @@
 <footer class="main-footer">
     <nav class="nav">
         <ul class="nav__list container">
-            <?php
-            foreach ($categories as $cat): ?>
+            <?php foreach ($categories as $cat): ?>
                 <li class="nav__item">
                     <a href="all-lots.html"> <?=$cat['cat_name']; ?></a>
                 </li>
-            <? endforeach; ?>
+            <?php endforeach; ?>
         </ul>
     </nav>
     <div class="main-footer__bottom container">

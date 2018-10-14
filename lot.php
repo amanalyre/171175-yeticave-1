@@ -17,6 +17,8 @@ if ($lot_id == false || $lot_info == false) {
     $layoutContent = renderTemplate('layout', [
         'pageContent' => $templContent,
         'categories' => $categories,
+        'userName' => getUserSessionData()['us_name'] ?? null,
+        'userAvatar' => getUserSessionData()['us_image'] ?? null,
         'pageName' => '404 Not Found']);
     print($layoutContent);
     exit;

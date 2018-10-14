@@ -27,16 +27,15 @@
         <span class="form__error"><?= $errors['message'] ?? '' ?></span>
     </div>
 
-    <div class="form__item form__item--file form__item--last <? if (!empty($photo))
+    <div class="form__item form__item--file form__item--last
+    <? if (!empty($photo))
     {
-        if (empty($errors['photo']))
-        {
+        if (empty($errors['photo'])){
             echo 'form__item--uploaded';
-        }
-        else
-        {
+        } else{
             echo 'form__item--invalid';
-        }} else {echo '';}; ?>">
+        }
+    } else {echo '';}; ?>">
         <label>Аватар</label>
         <div class="preview">
             <button class="preview__remove" type="button">x</button>
@@ -57,7 +56,7 @@
     </div>
     <?php if (!empty($errors)): ?>
     <span class="form__error form__error--bottom">Пожалуйста, исправьте ошибки в форме.</span>
-    <?php endif?>
+    <?php endif;?>
     <button type="submit" class="button">Зарегистрироваться</button>
     <a class="text-link" href="login.php">Уже есть аккаунт</a>
     <p>
