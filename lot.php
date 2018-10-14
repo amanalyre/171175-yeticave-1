@@ -27,7 +27,10 @@ $lot_info = lotPrice($lot_info);
 
 $betList = getLotBets($lot_id);
 $betsCount = getLotBetsCount($lot_id);
-$newBet = $_POST['bet'];
+
+if (isset($_POST['bet'])) {
+    $newBet = $_POST['bet'];
+}
 
 $betListContent = ''; // содержит все ставки на лот
 if ($betsCount['betsCount'] > 0) {
@@ -41,6 +44,31 @@ if ($betsCount['betsCount'] > 0) {
 } elseif (strtotime($lot_info['finish_date']) < time()) {
     $betListContent = "Торги окончены";
 } else {$betListContent = "На этот лот нет ставок";}
+
+//switch ($betsCount['betsCount']) {
+//    case $betsCount['betsCount'] === 1 && biddingIsOver($lot_info) === false:
+//        $betListContent = renderTemplate('betListTempl', $betList);
+//        echo "Here";
+//        break;
+//    case $betsCount['betsCount'] > 1 && biddingIsOver($lot_info) === false:
+//        $betListContent .= renderTemplate('betListTempl', $bet);
+//        break;
+//    case $betsCount['betsCount'] < 1 && biddingIsOver($lot_info) === false:
+//        $betListContent = "На этот лот нет ставок";
+//        break;
+//
+//    case $betsCount['betsCount'] === 1 && biddingIsOver($lot_info) === true:
+//        $betListContent = renderTemplate('betListTempl', $betList);
+//        $biddingIsOver = "Торги окончены";
+//        break;
+//    case $betsCount['betsCount'] > 1 && biddingIsOver($lot_info) === true:
+//        $betListContent .= renderTemplate('betListTempl', $bet);
+//        $biddingIsOverVar = "Торги окончены";
+//        break;
+//    case $betsCount['betsCount'] < 1 && biddingIsOver($lot_info) === true:
+//        $betListContent = "Торги окончены";
+//        break;
+//}
 
 $minPrice = null;
 $betAdded = null;
@@ -59,10 +87,11 @@ if (isAuthorized() && $_POST) {
 
 
 $templContent = renderTemplate('lot', [
-    'lot_info' => $lot_info,
-    'errors'   => $errors ?? [],
-    '$betList' => $betList,
-    'betsCount'=> $betsCount,
+    'lot_info'       => $lot_info,
+    'errors'         => $errors ?? [],
+    '$betList'       => $betList,
+    'betsCount'      => $betsCount,
+    //'biddingIsOver'  => $biddingIsOverVar,
     'betListContent' => $betListContent]);
 
 $categories = getCatList();

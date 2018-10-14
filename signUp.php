@@ -17,9 +17,10 @@ if ($_POST) {
 
     $resultAddUser = saveUser($user, $avatar); //#TODO это поле должно совпадать с name в форме шаблона
 
+
     if ($resultAddUser['result'] === true) {
-        header('Location: logIn.php');
-       // header('Location: /');
+       // header('Location: logIn.php');
+        header('Location: /');
     } else {
         $errors = $resultAddUser['errors'];
     }}
@@ -28,7 +29,7 @@ try {
     $templContent = renderTemplate('signUp', [
         'categories'  => $categories,
         'errors'      => $errors ?? [],
-        'photo'       => $_FILES['photo'],
+        'photo'       => $avatar,
         'email'       => $user['email'] ?? '',
         'name'        => $user['name'] ?? '',
         'message'     => $user['message'] ?? '',

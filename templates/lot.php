@@ -39,9 +39,14 @@
             </div>
             <div class="history">
                 <h3>История ставок (<span><?=$betsCount['betsCount']; ?></span>)</h3>
+                <?php if ($betsCount['betsCount'] > 0): ?>
+                <!--<?=$biddingIsOver ?>-->
                 <table class="history__list">
                     <?= $betListContent; ?>
                 </table>
+                <?php else: ?>
+                    <p><?= $betListContent; ?></p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
