@@ -3,7 +3,7 @@
     <div class="lot-item__content">
         <div class="lot-item__left">
             <div class="lot-item__image">
-                <img src=<?=htmlspecialchars($lot_info['img_url']) ?> width="730" height="548" alt="Сноуборд">
+                <img src=<?=htmlspecialchars($lot_info['img_url']) ?> width="730" height="548" alt="<?=$lot_info['lot_name'] ?>">
             </div>
             <p class="lot-item__category">Категория: <span><?=htmlspecialchars($lot_info['cat_name']) ?></span></p>
             <p class="lot-item__category">Владелец: <?=htmlspecialchars($lot_info['author_id']) ?></p>
@@ -18,10 +18,10 @@
                 <div class="lot-item__cost-state">
                     <div class="lot-item__rate">
                         <span class="lot-item__amount">Текущая цена</span>
-                        <span class="lot-item__cost"><?=htmlspecialchars(price_round($lot_info['cur_price'])) ?></span>
+                        <span class="lot-item__cost"><?=price_round($lot_info['cur_price']) ?></span>
                     </div>
                     <div class="lot-item__min-cost">
-                        Мин. ставка <span><?= htmlspecialchars(minBet($lot_info)) ?></span>
+                        Мин. ставка <span><?=minBet($lot_info) ?></span>
                     </div>
                 </div>
                 <?php if (showBetForm($lot_info)):?>

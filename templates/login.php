@@ -14,6 +14,6 @@
     <button type="submit" class="button">Войти</button>
     <?php if (!empty($errors)): ?>
         <span class="form__error form__error--bottom">Неправильное имя пользователя или пароль. Пожалуйста, проверьте введенные данные и попробуйте еще раз.</span>
-    <?php endif?>
+    <?php endif;?>
     <a class="text-link" href="signUp.php">Создать новый аккаунт</a>
 </form>

@@ -44,7 +44,7 @@ try {
         'step'        => $lot['step'] ?? '',
         'finish_date' => $lot['finish_date'] ?? '',
         'errors'      => $errors ?? [],
-        'photo'       => $_FILES['photo']
+        'photo'       => $image
     ]);
 } catch (Exception $e)
 {

@@ -14,7 +14,7 @@
                 <option value="0">Выберите категорию</option>
                 <?php foreach ($categories as $cat): ?>
                     <option value="<?=$cat['id']; ?>" <?=$category == $cat['id'] ? 'selected' : ''; ?>> <?=$cat['cat_name']; ?></option>
-                <? endforeach; ?>
+                <?php endforeach; ?>
             </select>
             <span class="form__error"><?= $errors['category'] ?? '' ?></span>
         </div>
@@ -25,7 +25,7 @@
         <span class="form__error"><?= $errors['description'] ?? '' ?></span>
     </div>
 
-    <div class="form__item form__item--file <? if (!empty($photo))
+    <div class="form__item form__item--file <?php if (!empty($photo))
     {
         if (empty($errors['photo']))
         {
@@ -73,6 +73,6 @@
     </div>
     <?php if (!empty($errors)): ?>
     <span class="form__error form__error--bottom">Пожалуйста, исправьте ошибки в форме.</span>
-    <?php endif?>
+    <?php endif;?>
     <button type="submit" class="button">Добавить лот</button>
 </form>

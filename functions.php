@@ -104,18 +104,20 @@ function addOffset(array $parameterList)
  */
 function lotFinishTime($finishTime, bool $secShow = false)
 {
-    $finishTime = strtotime($finishTime);
+    $timeLeft = '';
+    $finishTime = strtotime($finishTime); //timestamp
 
     $time = $finishTime - time();
 
-    if ($time < 0) {
-        return '00:00';
+    if ($time < 1) {
+        $timeLeft = '00:00';
+    } else {
+        $format = '%02d:%02d'; // тут в формате ожидается по 2 символа
+        !$secShow ?: $format .= ':%02d';
+
+        $timeLeft = sprintf($format, ($time / 3600), ($time / 60) % 60, $time % 60);
     }
-
-    $format = '%02d:%02d'; // тут в формате ожидается по 2 символа
-    !$secShow ?: $format .= ':%02d';
-
-    return sprintf($format, ($time / 3600) % 24, ($time / 60) % 60, $time % 60);
+    return $timeLeft;
 }
 
 /**
@@ -264,7 +266,7 @@ function checkFieldsSaveUser(array $user_data)
         $errors['email'] = 'Введите адрес электронной почты';
     } elseif (getUserInfoByEmail($user_data['email'])) {
         $errors['email'] = 'Пользователь с указанным email уже существует';
-    };
+    }
 
     if (empty($errors['password']) && $user_data['password'] !== $user_data['password2']) {
         $errors['password'] = 'Введенные пароли не совпадают';
@@ -586,7 +588,6 @@ function formRequiredFields(array $form, array $fields)
 function checkUplImage(array $image, string $key)
 {
     $error = [];
-   // var_dump($_FILES);
 
     if (empty($image['size']) or ($_FILES["photo"]["error"] != UPLOAD_ERR_OK)) {  //тут потенциально может быть хрень
         $error[$key] = 'Выберите изображение';
@@ -676,6 +677,7 @@ function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
     ];
 
     $errors = checkNewBet($newBet, $minPrice);
+
     if (empty($errors)) {
         $sql = 'INSERT INTO bids
                       (bid_date, bid_price, user_id, lot_id)
@@ -698,7 +700,7 @@ function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
             ];
     } else {
         $result = [
-            'result' => true,
+            'result' => false,
             'errors' => $errors
         ];
     }
@@ -708,7 +710,7 @@ function betAdd(int $lotId, array $newBet, int $minPrice, $db = null)
 /**
  * Возвращает минимальную ставку на данный момент
  * @param $lot_info array Информация о лоте из БД
- * @param $type bool Позволяет выбрать, форматировать ли с рублем ответ
+ * @param $type bool Позволяет выбрать, форматировать ли (false) с рублем ответ
  *
  * @return string Минимальная ставка
  */
@@ -717,7 +719,7 @@ function minBet($lot_info, $type = false)
     if ($type === false) {
     return price_round($lot_info['cur_price'] + $lot_info['bid_step']);
     } else {
-        return $lot_info['cur_price'] + $lot_info['bid_step'];
+        return htmlspecialchars($lot_info['cur_price'] + $lot_info['bid_step']);
     }
 }
 
@@ -790,7 +792,7 @@ function showBetForm($lot_info)
     if (isAuthorized() && strtotime($lot_info['finish_date']) > time()) {
         if (($lot_info['author_id'] !== getUserSessionData()['id']) &&
             (lastLotBidder($lot_info['id'])['user_id'] !== getUserSessionData()['id']) ||
-            (getLotBetsCount($lot_info['id']) === 0)) {
+            (intval(getLotBetsCount($lot_info['id'])) === 0)) {
             return true;
         }
     }
