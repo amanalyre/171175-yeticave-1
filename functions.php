@@ -1,7 +1,7 @@
 <?php
 
 require_once ('mysql_helper.php');
-error_reporting(E_ALL);
+require_once ('configure.php');
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -412,7 +412,8 @@ function getSession()
 {
     static $session = null;
 
-    if ($session === null) {
+
+    if ($session === null && !is_null($_SESSION)) {
         $session = $_SESSION;
     }
 
@@ -585,8 +586,9 @@ function formRequiredFields(array $form, array $fields)
 function checkUplImage(array $image, string $key)
 {
     $error = [];
+   // var_dump($_FILES);
 
-    if (empty($image['size']) or $_FILES["pictures"]["error"] != UPLOAD_ERR_OK) {  //тут потенциально может быть хрень
+    if (empty($image['size']) or ($_FILES["photo"]["error"] != UPLOAD_ERR_OK)) {  //тут потенциально может быть хрень
         $error[$key] = 'Выберите изображение';
     } elseif ($image['size'] > 5e+6) {
         $error[$key] = 'Изображение не должно быть более 5Мб'; // #TODO проверить размер файла
@@ -604,6 +606,13 @@ function checkUplImage(array $image, string $key)
     return $error;
 };
 
+function dirExistence(string $dir)
+{
+    if (!file_exists($dir)) {
+        mkdir($dir);
+    }
+}
+
 /**
  * Сохраняет изображение на сервер
  * @param array $image изображение для сохранения
@@ -616,6 +625,8 @@ function saveImage(array $image, string $dir)
     $uploadDir = __DIR__ ; // в корне проекта
     $name = basename($image["name"]); // здесь только имя.расширение файла
     $uploadFile = "$uploadDir\\$dir\\$name";
+
+    dirExistence("$uploadDir\\$dir");
 
     if (move_uploaded_file($image['tmp_name'], "$uploadFile")) {
         return "$dir/$name";
@@ -779,7 +790,7 @@ function showBetForm($lot_info)
     if (isAuthorized() && strtotime($lot_info['finish_date']) > time()) {
         if (($lot_info['author_id'] !== getUserSessionData()['id']) &&
             (lastLotBidder($lot_info['id'])['user_id'] !== getUserSessionData()['id']) ||
-            (getLotBetsCount($lot_info['id']) == 0)) {
+            (getLotBetsCount($lot_info['id']) === 0)) {
             return true;
         }
     }
@@ -807,6 +818,15 @@ function lastLotBidder($lotId, $limit = 1)
     ];
     $lastBidder = processingSqlQuery($parametersList);
     return $lastBidder;
+}
+
+function biddingIsOver(array $lot_info)
+{
+    if (strtotime($lot_info['finish_date']) < time()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**

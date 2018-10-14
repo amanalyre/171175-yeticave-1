@@ -13,7 +13,7 @@
     </div>
     <div class="form__item <?php echo (empty($errors['password2'])) ? '' : ' form__item--invalid' ?>">
         <label for="password2">Повторите пароль*</label>
-        <input id="password2" type="passwor2d" name="user[password2]" placeholder="Введите пароль">
+        <input id="password2" type="password" name="user[password2]" placeholder="Введите пароль">
         <span class="form__error"><?= $errors['password2'] ?? '' ?></span>
     </div>
     <div class="form__item<?php echo (empty($errors['name'])) ? '' : ' form__item--invalid' ?>">
